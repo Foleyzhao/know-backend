@@ -1,0 +1,1675 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="1" author="mnt" context="master">
+        <sql>
+            <![CDATA[
+            CREATE TABLE `mnt_app`
+            (
+                `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `name`          varchar(255)  DEFAULT NULL COMMENT '应用名称',
+                `upload_path`   varchar(255)  DEFAULT NULL COMMENT '上传目录',
+                `deploy_path`   varchar(255)  DEFAULT NULL COMMENT '部署路径',
+                `backup_path`   varchar(255)  DEFAULT NULL COMMENT '备份路径',
+                `port`          int(255) DEFAULT NULL COMMENT '应用端口',
+                `start_script`  varchar(4000) DEFAULT NULL COMMENT '启动脚本',
+                `deploy_script` varchar(4000) DEFAULT NULL COMMENT '部署脚本',
+                `create_by`     varchar(255)  DEFAULT NULL COMMENT '创建者',
+                `update_by`     varchar(255)  DEFAULT NULL COMMENT '更新者',
+                `create_time`   datetime      DEFAULT NULL COMMENT '创建日期',
+                `update_time`   datetime      DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='应用管理';
+
+            CREATE TABLE `mnt_database`
+            (
+                `id`          varchar(50)  NOT NULL COMMENT 'ID',
+                `name`        varchar(255) NOT NULL COMMENT '名称',
+                `jdbc_url`    varchar(255) NOT NULL COMMENT 'jdbc连接',
+                `user_name`   varchar(255) NOT NULL COMMENT '账号',
+                `pwd`         varchar(255) NOT NULL COMMENT '密码',
+                `create_by`   varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`   varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time` datetime     DEFAULT NULL COMMENT '创建时间',
+                `update_time` datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据库管理';
+
+            CREATE TABLE `mnt_deploy`
+            (
+                `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `app_id`      bigint(20) DEFAULT NULL COMMENT '应用编号',
+                `create_by`   varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`   varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time` datetime     DEFAULT NULL,
+                `update_time` datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='部署管理';
+
+            CREATE TABLE `mnt_deploy_history`
+            (
+                `id`          varchar(50)  NOT NULL COMMENT 'ID',
+                `app_name`    varchar(255) NOT NULL COMMENT '应用名称',
+                `deploy_date` datetime     NOT NULL COMMENT '部署日期',
+                `deploy_user` varchar(50)  NOT NULL COMMENT '部署用户',
+                `ip`          varchar(20)  NOT NULL COMMENT '服务器IP',
+                `deploy_id`   bigint(20) DEFAULT NULL COMMENT '部署编号',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='部署历史管理';
+
+            CREATE TABLE `mnt_deploy_server`
+            (
+                `deploy_id` bigint(20) NOT NULL COMMENT '部署ID',
+                `server_id` bigint(20) NOT NULL COMMENT '服务ID',
+                PRIMARY KEY (`deploy_id`, `server_id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='应用与服务器关联';
+
+            CREATE TABLE `mnt_server`
+            (
+                `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `account`     varchar(50)  DEFAULT NULL COMMENT '账号',
+                `ip`          varchar(20)  DEFAULT NULL COMMENT 'IP地址',
+                `name`        varchar(100) DEFAULT NULL COMMENT '名称',
+                `password`    varchar(100) DEFAULT NULL COMMENT '密码',
+                `port`        int(11) DEFAULT NULL COMMENT '端口',
+                `create_by`   varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`   varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time` datetime     DEFAULT NULL COMMENT '创建时间',
+                `update_time` datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='服务器管理';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="2" author="system" context="master">
+        <sql>
+            <![CDATA[
+            CREATE TABLE `sys_dept`
+            (
+                `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `pid`         bigint(20) DEFAULT NULL COMMENT '上级部门',
+                `sub_count`   int(5) DEFAULT 0 COMMENT '子部门数目',
+                `name`        varchar(255) NOT NULL COMMENT '名称',
+                `dept_sort`   int(5) DEFAULT 999 COMMENT '排序',
+                `enabled`     bit(1)       NOT NULL COMMENT '状态',
+                `create_by`   varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`   varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time` datetime     DEFAULT NULL COMMENT '创建日期',
+                `update_time` datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='部门';
+
+            INSERT INTO `sys_dept` VALUES (1, NULL, 4, '总公司', 1, b'1', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_dept` VALUES (2, 1, 0, '安全部', 2, b'1', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_dept` VALUES (3, 1, 0, '运维部', 3, b'1', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_dept` VALUES (4, 1, 0, '研发部', 4, b'1', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_dept` VALUES (5, 1, 0, '测试部', 5, b'1', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+
+            CREATE TABLE `sys_dict`
+            (
+                `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `name`        varchar(255) NOT NULL COMMENT '字典名称',
+                `description` varchar(255) DEFAULT NULL COMMENT '描述',
+                `create_by`   varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`   varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time` datetime     DEFAULT NULL COMMENT '创建日期',
+                `update_time` datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典';
+
+            INSERT INTO `sys_dict` VALUES (1, 'user_status', '用户状态', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_dict` VALUES (2, 'dept_status', '部门状态', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_dict` VALUES (3, 'job_status', '岗位状态', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+
+            CREATE TABLE `sys_dict_detail`
+            (
+                `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `dict_id`     bigint(11) DEFAULT NULL COMMENT '字典id',
+                `label`       varchar(255) NOT NULL COMMENT '字典标签',
+                `value`       varchar(255) NOT NULL COMMENT '字典值',
+                `dict_sort`   int(5) DEFAULT NULL COMMENT '排序',
+                `create_by`   varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`   varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time` datetime     DEFAULT NULL COMMENT '创建日期',
+                `update_time` datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='数据字典详情';
+
+            INSERT INTO `sys_dict_detail` VALUES (1, 1, '激活', 'true', 1, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_dict_detail` VALUES (2, 1, '禁用', 'false', 2, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_dict_detail` VALUES (3, 2, '启用', 'true', 1, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_dict_detail` VALUES (4, 2, '停用', 'false', 2, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_dict_detail` VALUES (5, 3, '启用', 'true', 1, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_dict_detail` VALUES (6, 3, '停用', 'false', 2, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+
+            CREATE TABLE `sys_job`
+            (
+                `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `name`        varchar(255) NOT NULL COMMENT '岗位名称',
+                `enabled`     bit(1)       NOT NULL COMMENT '岗位状态',
+                `job_sort`    int(5) DEFAULT NULL COMMENT '排序',
+                `create_by`   varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`   varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time` datetime     DEFAULT NULL COMMENT '创建日期',
+                `update_time` datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='岗位';
+
+            INSERT INTO `sys_job` VALUES (1, '总经理', b'1', 1, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_job` VALUES (2, '部门经理', b'1', 2, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_job` VALUES (3, '普通职员', b'1', 3, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+
+            CREATE TABLE `sys_menu`
+            (
+                `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `pid`            bigint(20) DEFAULT NULL COMMENT '上级菜单ID',
+                `sub_count`      int(5) DEFAULT 0 COMMENT '子菜单数目',
+                `type`           int(11) DEFAULT NULL COMMENT '菜单类型',
+                `title`          varchar(255) DEFAULT NULL COMMENT '菜单标题',
+                `component_name` varchar(255) DEFAULT NULL COMMENT '组件名称',
+                `component`      varchar(255) DEFAULT NULL COMMENT '组件',
+                `menu_sort`      int(5) DEFAULT NULL COMMENT '排序',
+                `icon`           varchar(255) DEFAULT NULL COMMENT '图标',
+                `path`           varchar(255) DEFAULT NULL COMMENT '链接地址',
+                `i_frame`        bit(1)       DEFAULT NULL COMMENT '是否外链',
+                `cache`          bit(1)       DEFAULT b'0' COMMENT '缓存',
+                `hidden`         bit(1)       DEFAULT b'0' COMMENT '隐藏',
+                `permission`     varchar(255) DEFAULT NULL COMMENT '权限',
+                `create_by`      varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`      varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time`    datetime     DEFAULT NULL COMMENT '创建日期',
+                `update_time`    datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=118 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统菜单';
+
+            INSERT INTO `sys_menu` VALUES (1, NULL, 0, 0, '综控台', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (2, NULL, 0, 0, '安全应用', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (3, NULL, 0, 0, '风险管理', NULL, NULL, 3, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (4, NULL, 0, 0, '资产视图', NULL, NULL, 4, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (5, NULL, 0, 0, '资产管理', NULL, NULL, 5, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (6, NULL, 0, 0, '系统配置', NULL, NULL, 6, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+
+            CREATE TABLE `sys_role`
+            (
+                `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `name`        varchar(255) NOT NULL COMMENT '名称',
+                `level`       int(255) DEFAULT NULL COMMENT '角色级别',
+                `description` varchar(255) DEFAULT NULL COMMENT '描述',
+                `data_scope`  varchar(255) DEFAULT NULL COMMENT '数据权限',
+                `create_by`   varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`   varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time` datetime     DEFAULT NULL COMMENT '创建日期',
+                `update_time` datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='角色表';
+
+            INSERT INTO `sys_role` VALUES (1, '超级管理员', 1, '-', '全部', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_role` VALUES (2, '风险管理员', 2, '-', '全部', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_role` VALUES (3, '资产管理员', 2, '-', '全部', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+
+            CREATE TABLE `sys_roles_depts`
+            (
+                `role_id` bigint(20) NOT NULL,
+                `dept_id` bigint(20) NOT NULL,
+                PRIMARY KEY (`role_id`, `dept_id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='角色部门关联';
+
+            CREATE TABLE `sys_roles_menus`
+            (
+                `menu_id` bigint(20) NOT NULL COMMENT '菜单ID',
+                `role_id` bigint(20) NOT NULL COMMENT '角色ID',
+                PRIMARY KEY (`menu_id`, `role_id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='角色菜单关联';
+
+            INSERT INTO `sys_roles_menus` VALUES (1, 1);
+            INSERT INTO `sys_roles_menus` VALUES (2, 1);
+            INSERT INTO `sys_roles_menus` VALUES (3, 1);
+            INSERT INTO `sys_roles_menus` VALUES (4, 1);
+            INSERT INTO `sys_roles_menus` VALUES (5, 1);
+            INSERT INTO `sys_roles_menus` VALUES (6, 1);
+
+            CREATE TABLE `sys_user`
+            (
+                `id`             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `dept_id`        bigint(20) DEFAULT NULL COMMENT '部门ID',
+                `username`       varchar(255) DEFAULT NULL COMMENT '用户名',
+                `nick_name`      varchar(255) DEFAULT NULL COMMENT '昵称',
+                `gender`         varchar(2)   DEFAULT NULL COMMENT '性别',
+                `phone`          varchar(255) DEFAULT NULL COMMENT '手机号码',
+                `email`          varchar(255) DEFAULT NULL COMMENT '邮箱',
+                `avatar_name`    varchar(255) DEFAULT NULL COMMENT '头像地址',
+                `avatar_path`    varchar(255) DEFAULT NULL COMMENT '头像真实路径',
+                `password`       varchar(255) DEFAULT NULL COMMENT '密码',
+                `is_admin`       bit(1)       DEFAULT b'0' COMMENT '是否为admin账号',
+                `enabled`        bigint(20) DEFAULT NULL COMMENT '状态',
+                `create_by`      varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`      varchar(255) DEFAULT NULL COMMENT '更新者',
+                `pwd_reset_time` datetime     DEFAULT NULL COMMENT '修改密码的时间',
+                `create_time`    datetime     DEFAULT NULL COMMENT '创建日期',
+                `update_time`    datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统用户';
+
+            INSERT INTO `sys_user` VALUES (1, 1, 'admin', '管理员', '男', NULL, NULL, 'avatar-20200806032259161.png', '/Users/jie/Documents/work/me/admin/eladmin/~/avatar/avatar-20200806032259161.png', '$2a$10$Egp1/gvFlt7zhlXVfEFw4OfWQCGPw0ClmMcc6FjTnvXNRVf9zdMRa', b'1', 1, NULL, 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+
+            CREATE TABLE `sys_users_jobs`
+            (
+                `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+                `job_id`  bigint(20) NOT NULL COMMENT '岗位ID',
+                PRIMARY KEY (`user_id`, `job_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+            INSERT INTO `sys_users_jobs` VALUES (1, 11);
+
+            CREATE TABLE `sys_users_roles`
+            (
+                `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+                `role_id` bigint(20) NOT NULL COMMENT '角色ID',
+                PRIMARY KEY (`user_id`, `role_id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='用户角色关联';
+
+            INSERT INTO `sys_users_roles` VALUES (1, 1);
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="3" author="zhaoff" context="master">
+        <sql>
+            <![CDATA[
+            CREATE TABLE `quartz_job` (
+                `id`               bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `job_name`         varchar(255) DEFAULT NULL COMMENT '任务名称',
+                `job_type`         varchar(255) DEFAULT NULL COMMENT '任务类型',
+                `bean_name`        varchar(255) DEFAULT NULL COMMENT 'Bean名称',
+                `method_name`      varchar(255) DEFAULT NULL COMMENT '方法名称',
+                `params`           bigint(20)   DEFAULT NULL COMMENT '参数',
+                `start_time`       datetime     DEFAULT NULL COMMENT '开始时间',
+                `cron_expression`  varchar(255) DEFAULT NULL COMMENT 'cron表达式',
+                `interval`         bigint(20)   DEFAULT NULL COMMENT '执行间隔',
+                `is_pause`         bit(1)       DEFAULT NULL COMMENT '状态（是否暂停）',
+                `description`      varchar(255) DEFAULT NULL COMMENT '描述',
+                `create_by`        varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`        varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time`      datetime     DEFAULT NULL COMMENT '创建日期',
+                `update_time`      datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='定时任务';
+
+            CREATE TABLE `quartz_log` (
+                `id`               bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `job_name`         varchar(255) DEFAULT NULL,
+                `job_type`         varchar(255) DEFAULT NULL,
+                `bean_name`        varchar(255) DEFAULT NULL,
+                `method_name`      varchar(255) DEFAULT NULL,
+                `params`           bigint(20)   DEFAULT NULL,
+                `start_time`       datetime     DEFAULT NULL,
+                `cron_expression`  varchar(255) DEFAULT NULL,
+                `interval`         bigint(20)   DEFAULT NULL,
+                `is_success`       bit(1)       DEFAULT NULL,
+                `exception_detail` varchar(255) DEFAULT NULL,
+                `time`             bigint(20) DEFAULT NULL,
+                `create_time`      datetime     DEFAULT NULL,
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=151 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='定时任务日志';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="4" author="logging" context="master">
+        <sql>
+            <![CDATA[
+            CREATE TABLE `sys_log`
+            (
+                `id`               bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `description`      varchar(255) DEFAULT NULL,
+                `log_type`         varchar(255) DEFAULT NULL,
+                `method`           varchar(255) DEFAULT NULL,
+                `params`           text         DEFAULT NULL,
+                `request_ip`       varchar(255) DEFAULT NULL,
+                `time`             bigint(20) DEFAULT NULL,
+                `username`         varchar(255) DEFAULT NULL,
+                `address`          varchar(255) DEFAULT NULL,
+                `browser`          varchar(255) DEFAULT NULL,
+                `exception_detail` text         DEFAULT NULL,
+                `create_time`      datetime     DEFAULT NULL,
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=3537 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统日志';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="5" author="tools" context="master">
+        <sql>
+            <![CDATA[
+            CREATE TABLE `tool_email_config`
+            (
+                `id`        bigint(20) NOT NULL COMMENT 'ID',
+                `from_user` varchar(255) DEFAULT NULL COMMENT '收件人',
+                `host`      varchar(255) DEFAULT NULL COMMENT '邮件服务器SMTP地址',
+                `pass`      varchar(255) DEFAULT NULL COMMENT '密码',
+                `port`      varchar(255) DEFAULT NULL COMMENT '端口',
+                `user`      varchar(255) DEFAULT NULL COMMENT '发件者用户名',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='邮箱配置';
+
+            CREATE TABLE `tool_local_storage`
+            (
+                `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `real_name`   varchar(255) DEFAULT NULL COMMENT '文件真实的名称',
+                `name`        varchar(255) DEFAULT NULL COMMENT '文件名',
+                `suffix`      varchar(255) DEFAULT NULL COMMENT '后缀',
+                `path`        varchar(255) DEFAULT NULL COMMENT '路径',
+                `type`        varchar(255) DEFAULT NULL COMMENT '类型',
+                `size`        varchar(100) DEFAULT NULL COMMENT '大小',
+                `create_by`   varchar(255) DEFAULT NULL COMMENT '创建者',
+                `update_by`   varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time` datetime     DEFAULT NULL COMMENT '创建日期',
+                `update_time` datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='本地存储';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="6" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            CREATE TABLE `tbl_asset`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '资产id',
+              `ip` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'ip',
+              `complete_ip` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'ip全写',
+              `port` int(5) NULL DEFAULT NULL COMMENT '端口',
+              `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '资产名称',
+              `asset_type_id` bigint(20) NULL DEFAULT NULL COMMENT '资产类型 对应asset_type表',
+              `asset_sys_type_id` bigint(20) NULL DEFAULT NULL COMMENT '资产类型 对应asset_sys_type表',
+              `asset_category` int(1) NULL DEFAULT NULL COMMENT '资产类别  1主机 2应用',
+              `dept_id` bigint(20) NULL DEFAULT NULL COMMENT '所属部门id',
+              `protocol` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '协议',
+              `account` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '账号',
+              `pwd` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '密码',
+              `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+              `create_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人',
+              `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+              `update_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '修改人',
+              `extend_id` bigint(20) NULL DEFAULT NULL COMMENT '扩展属性',
+              `asset_status` int(1) NULL DEFAULT NULL COMMENT '资产状态',
+              `risk_level` int(1) NULL DEFAULT NULL COMMENT '风险等级',
+              `online_time` int(20) NULL DEFAULT NULL COMMENT '在线时长',
+              `agent_status` int(1) NULL DEFAULT NULL COMMENT 'agent状态',
+              `parent_id` bigint(20) NULL DEFAULT NULL COMMENT '父级id',
+              `charset` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '资产编码类型（ISO-8859-1/GB18030/US-ASCII/UTF-8）',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '资产表' ROW_FORMAT = Compact;
+
+            CREATE TABLE `tbl_asset_confirm`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+              `ip` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '资产ip',
+              `complete_ip` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '全写ip',
+              `port` int(5) NULL DEFAULT NULL COMMENT '端口',
+              `asset_category` int(1) NULL DEFAULT NULL COMMENT '资产类别 1主机 2应用',
+              `asset_type_id` bigint(20) NULL DEFAULT NULL COMMENT '资产类型',
+              `detect_task_id` bigint(20) NULL DEFAULT NULL COMMENT '发现任务id',
+              `detect_task_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '发现任务名称',
+              `protocol` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '登录协议',
+              `server` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '服务',
+              `website` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '网址',
+              `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+              `create_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人',
+              `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+              `update_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '修改人',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '确认资产表' ROW_FORMAT = Compact;
+
+            CREATE TABLE `tbl_asset_extend`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+              `host_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '主机名',
+              `uuid` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '主机uuid',
+              `location` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '主机地理位置',
+              `last_detect_time` datetime(0) NULL DEFAULT NULL COMMENT '上次探测时间',
+              `server` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '服务',
+              `server_compont` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '服务组件',
+              `title` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '标题',
+              `website` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '网址',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '资产扩展属性表' ROW_FORMAT = Compact;
+
+            CREATE TABLE `tbl_asset_tag`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '标签主键',
+              `tag_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '标签名称',
+              `enabled` int(1) NULL DEFAULT NULL COMMENT '是否启用  0否 1是',
+              `desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注',
+              `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+              `create_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人',
+              `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+              `update_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '修改人',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '资产标签' ROW_FORMAT = Compact;
+
+            CREATE TABLE `tbl_asset_tag_mapping`  (
+              `asset_id` bigint(20) NULL DEFAULT NULL COMMENT '资产id',
+              `tag_id` bigint(20) NULL DEFAULT NULL COMMENT '标签id'
+            ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '资产、标签映射表' ROW_FORMAT = Compact;
+
+            CREATE TABLE `tbl_asset_type`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+              `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '类型名称',
+              `internal` int(1) NULL DEFAULT 0 COMMENT '是否内置  0否 1是',
+              `icon` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '图标',
+              `enabled` int(1) NULL DEFAULT NULL COMMENT '是否启用 0否 1是',
+              `desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注描述',
+              `parent_id` bigint(20) NULL DEFAULT NULL COMMENT '父级id',
+              `create_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建者',
+              `update_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '更新者',
+              `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建日期',
+              `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '资产类型' ROW_FORMAT = Compact;
+
+            CREATE TABLE `tbl_detect_record`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+              `start_time` datetime(0) NULL DEFAULT NULL COMMENT '开始时间',
+              `end_time` datetime(0) NULL DEFAULT NULL COMMENT '结束时间',
+              `ip_list` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'ip列表',
+              `detect_task_id` bigint(20) NULL DEFAULT NULL COMMENT '发现任务id',
+              `result` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '执行结果',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+            CREATE TABLE `tbl_detect_task`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '任务id',
+              `detect_task_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '任务名称',
+              `task_type` int(1) NULL DEFAULT NULL COMMENT '任务类型   1手动 2每周 3每月 4自定义',
+              `task_status` int(1) NULL DEFAULT NULL COMMENT '执行状态  1 执行中 2 已结束 3 未开始',
+              `ip_range` int(1) NULL DEFAULT NULL COMMENT '1、全部 2、按部门 3、自定义ip',
+              `ip_list` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'ip列表',
+              `port_range` int(1) NULL DEFAULT NULL COMMENT '1、全部端口2、历史端口3、常见端口1000 4、常见端口2000 5、常见端口5000 6、自定义端口',
+              `port_list` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '端口列表',
+              `ping_switch` int(1) NULL DEFAULT NULL COMMENT 'ping扫描开关',
+              `port_range_UDP` int(1) NULL DEFAULT NULL COMMENT 'UDP端口',
+              `port_list_UDP` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'UDP端口列表',
+              `send_speed` int(10) NULL DEFAULT NULL COMMENT '发包速率',
+              `component_identify` int(1) NULL DEFAULT NULL COMMENT '组件识别 1 强 2 弱',
+              `last_result` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '上次执行结果',
+              `next_time` datetime(0) NULL DEFAULT NULL COMMENT '下次执行时间',
+              `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+              `create_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人',
+              `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+              `update_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '修改人',
+              `execute_param` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '执行参数：手动为空 每周为周几数组 每月为日期 自定义为间隔天数',
+              `start_time` datetime(0) NULL DEFAULT NULL COMMENT '执行时间点',
+              `cron` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'cron表达式',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '发现任务' ROW_FORMAT = Compact;
+
+            CREATE TABLE `tbl_gather_period`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+              `content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '采集内容',
+              `start_time` datetime(0) NULL DEFAULT NULL COMMENT '开始时间',
+              `period` int(20) NULL DEFAULT NULL COMMENT '执行间隔',
+              `unit` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '执行间隔单位',
+              `cron` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'cron表达式',
+              `gather_plan_id` bigint(20) NULL DEFAULT NULL COMMENT '采集计划id',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+            CREATE TABLE `tbl_gather_plan`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+              `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '计划名称',
+              `execution` int(1) NULL DEFAULT NULL COMMENT '执行方式',
+              `status` int(1) NULL DEFAULT NULL COMMENT '计划状态',
+              `task_running_num` int(20) NULL DEFAULT NULL COMMENT '正在执行的采集任务数量',
+              `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+              `create_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人',
+              `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+              `update_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '修改人',
+              `execute_param` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '执行参数：手动为空 每周为周几数组 每月为日期 自定义为间隔天数',
+              `start_time` datetime(0) NULL DEFAULT NULL COMMENT '执行时间点',
+              `cron` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'cron表达式',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '采集任务' ROW_FORMAT = Compact;
+
+            CREATE TABLE `tbl_gather_record`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+              `start_time` datetime(0) NULL DEFAULT NULL COMMENT '开始时间',
+              `end_time` datetime(0) NULL DEFAULT NULL COMMENT '结束时间',
+              `gather_task_id` bigint(20) NULL DEFAULT NULL COMMENT '采集任务id',
+              `gather_task_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '采集任务名称',
+              `ip_list` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '采集对象',
+              `result` int(1) NULL DEFAULT NULL COMMENT '采集结果 1成功 2失败 3部分失败',
+              `result_time_consuming` int(1) NULL DEFAULT NULL COMMENT '耗时项结果 1成功 2失败',
+              `result_time_real` int(1) NULL DEFAULT NULL COMMENT '实时项结果 1成功 2失败',
+              `result_no_change` int(1) NULL DEFAULT NULL COMMENT '不常变化项结果 1成功 2失败',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+            CREATE TABLE `tbl_ip_library`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+              `ip` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '资产ip',
+              `complete_ip` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'ip全写',
+              `dept_id` bigint(20) NULL DEFAULT NULL COMMENT '所属部门',
+              `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+              `create_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人',
+              `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+              `update_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '修改人',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'ip库' ROW_FORMAT = Compact;
+
+            CREATE TABLE `tbl_plan_asset`  (
+              `plan_id` bigint(20) NULL DEFAULT NULL COMMENT '计划id',
+              `asset_id` bigint(20) NULL DEFAULT NULL COMMENT '资产id'
+            ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="7" author="zhaoff" context="master">
+        <sql>
+            <![CDATA[
+            DROP TABLE `tbl_asset_type`;
+            CREATE TABLE `tbl_asset_type` (
+                `id`          int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+                `name`        varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+                `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+                `customize`   boolean,
+                `parent_id`   int(11) NULL DEFAULT NULL,
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+            INSERT INTO `tbl_asset_type` VALUES (1, '主机', '', false, null);
+            INSERT INTO `tbl_asset_type` VALUES (2, '网络设备', '', false, null);
+            INSERT INTO `tbl_asset_type` VALUES (3, '安全设备', '', false, null);
+            INSERT INTO `tbl_asset_type` VALUES (4, '数据库', '', false, null);
+            INSERT INTO `tbl_asset_type` VALUES (5, '应用', '', false, null);
+            INSERT INTO `tbl_asset_type` VALUES (6, '中间件', '', false, null);
+            INSERT INTO `tbl_asset_type` VALUES (7, 'C/S资产', '', false, null);
+            INSERT INTO `tbl_asset_type` VALUES (8, 'B/S资产', '', false, null);
+
+            CREATE TABLE `tbl_asset_sys_type` (
+                `id`            int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+                `name`          varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+                `asset_type_id` int(11) NULL DEFAULT NULL,
+                `description`   varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+                `customize`     boolean,
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+            INSERT INTO `tbl_asset_sys_type` VALUES (1, 'Windows server', 1, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (2, 'Centos/Redhat', 1, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (3, 'HP-UX', 1, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (4, 'Debian', 1, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (5, 'SUSE', 1, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (6, 'Solaris', 1, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (7, 'vmware esxi', 1, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (8, 'H3C(Comware)', 2, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (9, 'Huawei(VRP)', 2, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (10, 'Cisco(IOS)', 2, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (11, 'ZTE', 2, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (12, 'H3C(Comware)', 3, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (13, 'Huawei(VRP)', 3, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (14, 'Juniper(Junos)', 3, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (15, 'MySql', 4, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (16, 'MSSQL', 4, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (17, 'Oracle', 4, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (18, 'Postgresql', 4, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (19, 'apache', 5, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (20, 'nginx', 5, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (21, 'weblogic', 6, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (22, 'tomcat', 6, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (23, 'Navicat Premium', 7, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (24, 'HRM', 8, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (25, 'CRM', 8, '', false);
+            INSERT INTO `tbl_asset_sys_type` VALUES (26, 'OA', 8, '', false);
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="101" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            CREATE TABLE `sys_log_file`
+            (
+                `id`           bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `file_name`    varchar(255) DEFAULT NULL COMMENT '文件名 (用户输入的文件名)',
+                `file_type`    int(2) DEFAULT NULL COMMENT '归档类型 手动归档 定期归档',
+                `file_path`    varchar(255) DEFAULT NULL COMMENT '文件路径 (完整路径 nginx 可以直接获取到的路径)',
+                `archive_time` varchar(255) DEFAULT NULL COMMENT '归档时间 可能存在时间段 故为 varchar',
+                `create_by`    varchar(255) DEFAULT NULL COMMENT '创建人',
+                `update_by`    varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time`  datetime     DEFAULT NULL COMMENT '创建时间',
+                `update_time`  datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统日志归档表';
+
+            CREATE TABLE `sys_message`
+            (
+                `id`              bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                `message_content` varchar(255) DEFAULT NULL COMMENT '消息内容',
+                `message_type`    int(2) DEFAULT NULL COMMENT '消息类型',
+                `user_id`         varchar(255) DEFAULT NULL COMMENT '消息范围 推送给那个用户',
+                `message_status`  int(1) DEFAULT NULL COMMENT '消息状态 0-未读，1-已读',
+                `create_by`       varchar(255) DEFAULT NULL COMMENT '创建人',
+                `update_by`       varchar(255) DEFAULT NULL COMMENT '更新者',
+                `create_time`     datetime     DEFAULT NULL COMMENT '创建时间',
+                `update_time`     datetime     DEFAULT NULL COMMENT '更新时间',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='系统消息表';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="102" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            UPDATE `sys_dept`
+            SET pid = NULL;
+            UPDATE `sys_job`
+            SET name = '部门负责人'
+            WHERE id = 2;
+            UPDATE `sys_job`
+            SET name = '普通员工'
+            WHERE id = 3;
+            DROP TABLE `sys_roles_depts`;
+            ALTER TABLE `sys_user`
+                ADD `job_id` bigint(20) DEFAULT NULL COMMENT '岗位id';
+            UPDATE `sys_user`
+            SET job_id = 1
+            WHERE id = 1;
+            DROP TABLE `sys_users_jobs`;
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="103" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            ALTER  TABLE quartz_job change `interval` period bigint(20) DEFAULT NULL COMMENT '执行间隔';
+            ALTER  TABLE quartz_log change `interval` period bigint(20) DEFAULT NULL COMMENT '执行间隔';
+            INSERT INTO `quartz_job`
+            (id, job_name, job_type, bean_name, method_name, start_time, period, is_pause, description, create_by, update_by, create_time, update_time)
+            VALUES
+            (1,'logFileArchive', 'archive', 'logFileServiceImpl', 'saveLogFileAuto', '2000-01-01 00:00:00', 86400, false, '日志归档定时任务', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="104" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            CREATE TABLE `tbl_vulnerability_scan_result_asset`
+            (
+              `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+              `scan_result_id` bigint(20) DEFAULT NULL COMMENT '扫描结果id',
+              `ip`    varchar(255) DEFAULT NULL COMMENT '扫描的资产ip',
+              `status`      int(11) DEFAULT NULL COMMENT '扫描状态，0:开始，1:结束，2:暂停',
+              `result`      int(11) DEFAULT NULL COMMENT '资产扫描结果，0:成功，1:失败',
+              `task_id`     varchar(255) DEFAULT NULL COMMENT '扫描器上的扫描结果ID 是第三方扫描器给的值需要根据这个值去找结果',
+              `extra`       mediumtext DEFAULT NULL COMMENT '额外信息',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='漏扫单个扫描结果表';
+
+            CREATE TABLE `tbl_vulnerability_scan_result`
+            (
+              `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+              `plan_id`     bigint(20) DEFAULT NULL COMMENT '扫描任务表id',
+              `scan_type`   varchar(255) DEFAULT NULL COMMENT 'all 全部, byDept 按部门, custom 自定义',
+              `scan_dept_name`   text DEFAULT NULL COMMENT '扫描的部门名列表',
+              `start_time`  datetime DEFAULT NULL COMMENT '开始时间',
+              `end_time`    datetime DEFAULT NULL COMMENT '结束时间',
+              `extra`       mediumtext DEFAULT NULL COMMENT '额外信息',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='漏扫扫描结果表';
+
+            CREATE TABLE `tbl_vulnerability_scan_plan` (
+              `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+              `name`        varchar(255) DEFAULT NULL COMMENT '扫描任务名',
+              `scanner_id`  bigint(20) DEFAULT NULL COMMENT '扫描器id',
+              `policy_id`   int(11) DEFAULT NULL COMMENT '扫描策略 ID 第三方漏扫器的策略 ',
+              `status`      int(11) DEFAULT NULL COMMENT '计划执行状态, 0: 正在执行， 1:执行结束， 2:未执行',
+              `extra`       mediumtext COMMENT '额外信息',
+              `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+              `quartz_job_id` bigint(20) DEFAULT NULL COMMENT '定时任务 id',
+              `scan_type`   varchar(255) DEFAULT NULL COMMENT 'all 全部, byDept 按部门, custom 自定义',
+              `last_time`   datetime DEFAULT NULL COMMENT '上次执行时间',
+              `next_time`   datetime DEFAULT NULL COMMENT '下次执行时间',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='漏扫任务表';
+
+            CREATE TABLE `tbl_vulnerability_scan` (
+              `id`          bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+              `name`        varchar(255) DEFAULT NULL COMMENT '扫描器名称',
+              `product`     varchar(255) DEFAULT NULL COMMENT '产品',
+              `version`     varchar(255) DEFAULT NULL COMMENT '版本',
+              `scan_username` varchar(255) DEFAULT NULL COMMENT '用户名',
+              `scan_password` varchar(255) DEFAULT NULL COMMENT '密码',
+              `scan_address` varchar(255) DEFAULT NULL COMMENT '扫描地址',
+              `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='扫描器表';
+
+            CREATE TABLE `tbl_vulnerability_plan_asset` (
+              `plan_id`     bigint(20) NOT NULL COMMENT '任务主键',
+              `asset_id`    bigint(20) NOT NULL COMMENT '资产主键',
+              PRIMARY KEY (`plan_id`,`asset_id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='任务资产关联表';
+
+            CREATE TABLE `tbl_vulnerability_plan_dept` (
+              `plan_id`     bigint(20) NOT NULL COMMENT '任务主键',
+              `dept_id`    bigint(20) NOT NULL COMMENT '部门主键',
+              PRIMARY KEY (`plan_id`,`dept_id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='任务部门关联表';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="201" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            alter table tbl_asset_extend change server_compont server_component varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '服务组件';
+
+
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="202" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            DROP TABLE IF EXISTS `tbl_asset_type`;
+            CREATE TABLE `tbl_asset_type` (
+                `id`          int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+                `name`        varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+                `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+                `customize`   boolean,
+                `parent_id`   int(11) NULL DEFAULT NULL,
+                `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+                `create_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人',
+                `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+                `update_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '修改人',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+            INSERT INTO `tbl_asset_type` VALUES (1, '主机', '', false, null, null, null, null, null);
+            INSERT INTO `tbl_asset_type` VALUES (2, '网络设备', '', false, null, null, null, null, null);
+            INSERT INTO `tbl_asset_type` VALUES (3, '安全设备', '', false, null, null, null, null, null);
+            INSERT INTO `tbl_asset_type` VALUES (4, '数据库', '', false, null, null, null, null, null);
+            INSERT INTO `tbl_asset_type` VALUES (5, '应用', '', false, null, null, null, null, null);
+            INSERT INTO `tbl_asset_type` VALUES (6, '中间件', '', false, null, null, null, null, null);
+            INSERT INTO `tbl_asset_type` VALUES (7, 'C/S资产', '', false, null, null, null, null, null);
+            INSERT INTO `tbl_asset_type` VALUES (8, 'B/S资产', '', false, null, null, null, null, null);
+
+            DROP TABLE IF EXISTS `tbl_asset_sys_type`;
+            CREATE TABLE `tbl_asset_sys_type` (
+                `id`            int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+                `name`          varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+                `asset_type_id` int(11) NULL DEFAULT NULL,
+                `description`   varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+                `customize`     boolean,
+                `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+                `create_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人',
+                `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+                `update_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '修改人',
+                PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+            INSERT INTO `tbl_asset_sys_type` VALUES (1, 'Windows server', 1, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (2, 'Centos/Redhat', 1, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (3, 'HP-UX', 1, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (4, 'Debian', 1, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (5, 'SUSE', 1, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (6, 'Solaris', 1, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (7, 'vmware esxi', 1, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (8, 'H3C(Comware)', 2, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (9, 'Huawei(VRP)', 2, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (10, 'Cisco(IOS)', 2, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (11, 'ZTE', 2, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (12, 'H3C(Comware)', 3, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (13, 'Huawei(VRP)', 3, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (14, 'Juniper(Junos)', 3, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (15, 'MySql', 4, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (16, 'MSSQL', 4, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (17, 'Oracle', 4, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (18, 'Postgresql', 4, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (19, 'apache', 5, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (20, 'nginx', 5, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (21, 'weblogic', 6, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (22, 'tomcat', 6, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (23, 'Navicat Premium', 7, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (24, 'HRM', 8, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (25, 'CRM', 8, '', false, null, null, null, null);
+            INSERT INTO `tbl_asset_sys_type` VALUES (26, 'OA', 8, '', false, null, null, null, null);
+
+            DROP TABLE IF EXISTS `tbl_asset_tag`;
+            CREATE TABLE `tbl_asset_tag`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '标签主键',
+              `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '标签名称',
+              `enabled` tinyint(1) NULL DEFAULT NULL COMMENT '是否启用  0否 1是',
+              `customize` tinyint(1) NULL DEFAULT NULL COMMENT '是否内置  0否 1是',
+              `desc` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注',
+              `parent_id` bigint(20) NULL DEFAULT NULL COMMENT '父级id',
+              `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+              `create_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人',
+              `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+              `update_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '修改人',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '资产标签' ROW_FORMAT = Compact;
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="105" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            delete from sys_menu;
+            INSERT INTO `sys_menu` VALUES (1, NULL, 1, 0, '全局', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (2, NULL, 3, 0, '综控台', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (3, NULL, 2, 0, '安全应用', NULL, NULL, 3, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (4, NULL, 3, 0, '风险管理', NULL, NULL, 4, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (5, NULL, 1, 0, '资产视图', NULL, NULL, 5, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (6, NULL, 4, 0, '资产管理', NULL, NULL, 6, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (7, NULL, 3, 0, '系统配置', NULL, NULL, 7, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (8, 1, 2, 0, '菜单栏', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', 'menu', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (9, 2, 0, 1, '数据分析', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', 'dataAnalysis', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (10, 2, 4, 1, '统计报表', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', 'statisticalReports', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (11, 2, 0, 1, '安全大屏', NULL, NULL, 3, 'system', NULL, b'0', b'0', b'0', 'securityScreen', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (12, 3, 2, 1, '智能检测', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', 'detection', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (13, 3, 2, 1, '异常告警', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', 'abnormalAlarms', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (14, 4, 1, 1, '漏洞清单', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', 'vulnerabilitiesList', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (15, 4, 2, 1, '风险处置', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', 'riskDisposal', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (16, 4, 1, 1, '漏洞添加', NULL, NULL, 3, 'system', NULL, b'0', b'0', b'0', 'vulnerabilityAdd', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (17, 5, 1, 1, '资产仓库', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', 'assetWarehouse', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (18, 6, 5, 1, '发现资产', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', 'discoverAssets', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (19, 6, 2, 1, '确认资产', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', 'recognitionAssets', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (20, 6, 4, 1, '资产清单', NULL, NULL, 3, 'system', NULL, b'0', b'0', b'0', 'assetList', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (21, 6, 4, 1, '数据采集', NULL, NULL, 4, 'system', NULL, b'0', b'0', b'0', 'dataGather', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (22, 7, 12, 1, '组织管理', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', 'organizationalManagement', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (23, 7, 1, 1, '日志审计', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', 'logAudit', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (24, 7, 6, 1, '自主配置', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', 'autonomousConfiguration', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (25, 8, 0, 2, '指纹搜索', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (26, 8, 0, 2, '下载Agent插件', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (27, 10, 0, 2, '删除明细清单', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (28, 10, 0, 2, '风评报告列表', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (29, 10, 0, 2, '删除风评报告', NULL, NULL, 3, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (30, 10, 0, 2, '添加风评报告', NULL, NULL, 4, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (31, 12, 0, 2, '扫描任务', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (32, 12, 0, 2, '扫描器管理', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (33, 13, 0, 2, '异常处置', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (34, 13, 0, 2, '告警阈值', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (35, 14, 0, 2, '导出漏洞清单', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (36, 15, 0, 2, '下发及关闭风险', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (37, 15, 0, 2, '修复及复测风险', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (38, 16, 0, 2, '添加漏洞', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (39, 17, 0, 2, '导出资产报表', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (40, 18, 0, 2, '创建任务', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (41, 18, 0, 2, '删除任务', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (42, 18, 0, 2, '执行任务', NULL, NULL, 3, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (43, 18, 0, 2, '删除IP', NULL, NULL, 4, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (44, 18, 0, 2, '添加IP', NULL, NULL, 5, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (45, 19, 0, 2, '录入资产', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (46, 19, 0, 2, '删除资产', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (47, 20, 0, 2, '删除资产', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (48, 20, 0, 2, '编辑资产', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (49, 20, 0, 2, '登录测试', NULL, NULL, 3, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (50, 20, 0, 2, '添加资产', NULL, NULL, 4, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (51, 21, 0, 2, '采集结果', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (52, 21, 0, 2, '新建计划', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (53, 21, 0, 2, '删除计划', NULL, NULL, 3, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (54, 21, 0, 2, '执行计划', NULL, NULL, 4, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (55, 22, 0, 2, '添加用户', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (56, 22, 0, 2, '编辑用户', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (57, 22, 0, 2, '重置密码', NULL, NULL, 3, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (58, 22, 0, 2, '删除用户', NULL, NULL, 4, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (59, 22, 0, 2, '添加部门', NULL, NULL, 5, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (60, 22, 0, 2, '编辑部门', NULL, NULL, 6, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (61, 22, 0, 2, '删除部门', NULL, NULL, 7, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (62, 22, 0, 2, '添加权限', NULL, NULL, 8, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (63, 22, 0, 2, '修改权限', NULL, NULL, 9, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (64, 22, 0, 2, '删除权限组', NULL, NULL, 10, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (65, 22, 0, 2, '配置权限组', NULL, NULL, 11, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (66, 22, 0, 2, '配置权限成员', NULL, NULL, 12, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (67, 23, 0, 2, '导出日志数据', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (68, 24, 0, 2, '添加资产类型', NULL, NULL, 1, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (69, 24, 0, 2, '删除资产类型', NULL, NULL, 2, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (70, 24, 0, 2, '修改资产类型', NULL, NULL, 3, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (71, 24, 0, 2, '添加资产标签', NULL, NULL, 4, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (72, 24, 0, 2, '删除资产标签', NULL, NULL, 5, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            INSERT INTO `sys_menu` VALUES (73, 24, 0, 2, '修改资产标签', NULL, NULL, 6, 'system', NULL, b'0', b'0', b'0', NULL, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="106" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            delete from sys_roles_menus;
+            INSERT INTO `sys_roles_menus` VALUES (8, 1);
+            INSERT INTO `sys_roles_menus` VALUES (9, 1);
+            INSERT INTO `sys_roles_menus` VALUES (10, 1);
+            INSERT INTO `sys_roles_menus` VALUES (11, 1);
+            INSERT INTO `sys_roles_menus` VALUES (12, 1);
+            INSERT INTO `sys_roles_menus` VALUES (13, 1);
+            INSERT INTO `sys_roles_menus` VALUES (14, 1);
+            INSERT INTO `sys_roles_menus` VALUES (15, 1);
+            INSERT INTO `sys_roles_menus` VALUES (16, 1);
+            INSERT INTO `sys_roles_menus` VALUES (17, 1);
+            INSERT INTO `sys_roles_menus` VALUES (18, 1);
+            INSERT INTO `sys_roles_menus` VALUES (19, 1);
+            INSERT INTO `sys_roles_menus` VALUES (20, 1);
+            INSERT INTO `sys_roles_menus` VALUES (21, 1);
+            INSERT INTO `sys_roles_menus` VALUES (22, 1);
+            INSERT INTO `sys_roles_menus` VALUES (23, 1);
+            INSERT INTO `sys_roles_menus` VALUES (24, 1);
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="203" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset_tag`
+            CHANGE COLUMN `desc` `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL
+            COMMENT '备注' AFTER `customize`;
+
+            ALTER TABLE `know`.`tbl_detect_task`
+            ADD COLUMN `dept_list` varchar(255) NULL COMMENT '部门id列表' AFTER `ip_range`;
+
+            ALTER TABLE `know`.`tbl_gather_plan`
+            ADD COLUMN `gather_obj` int(1) NULL COMMENT '1全部 2部门 3自定义' AFTER `cron`;
+
+            ALTER TABLE `know`.`tbl_gather_plan`
+            ADD COLUMN `dept_list` varchar(255) NULL COMMENT '部门id列表' AFTER `gather_obj`;
+
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="107" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+                DROP TABLE `tbl_asset`;
+                CREATE TABLE `tbl_asset`  (
+                `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '资产id',
+                `ip` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'ip',
+                `complete_ip` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'ip全写',
+                `port` int(5) NULL DEFAULT NULL COMMENT '端口',
+                `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '资产名称',
+                `asset_type_id` bigint(20) NULL DEFAULT NULL COMMENT '资产类型 对应asset_type表',
+                `asset_sys_type_id` bigint(20) NULL DEFAULT NULL COMMENT '资产类型 对应asset_sys_type表',
+                `asset_category` int(1) NULL DEFAULT NULL COMMENT '资产类别  1主机 2应用',
+                `dept_id` bigint(20) NULL DEFAULT NULL COMMENT '所属部门id',
+                `protocol` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '协议',
+                `account` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '账号',
+                `pwd` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '密码',
+                `web_address` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'web地址',
+                `fingerprint` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '指纹信息',
+                `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+                `create_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建人',
+                `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+                `update_by` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '修改人',
+                `extend_id` bigint(20) NULL DEFAULT NULL COMMENT '扩展属性',
+                `asset_status` int(1) NULL DEFAULT NULL COMMENT '资产状态',
+                `risk_level` int(1) NULL DEFAULT NULL COMMENT '风险等级',
+                `online_time` int(20) NULL DEFAULT NULL COMMENT '在线时长',
+                `agent_status` int(1) NULL DEFAULT NULL COMMENT 'agent状态',
+                `parent_id` bigint(20) NULL DEFAULT NULL COMMENT '父级id',
+                `charset` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '资产编码类型（ISO-8859-1/GB18030/US-ASCII/UTF-8）',
+                PRIMARY KEY (`id`) USING BTREE
+                ) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '资产表' ROW_FORMAT = Compact;
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="108" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset`
+            ADD COLUMN `gather_asset_id` varchar(255) NULL COMMENT 'ES的扫描资产id';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="204" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset`
+            ADD COLUMN `login_status` int(1) NULL COMMENT '登录测试状态 0 未开始 1 执行中 2 成功 3 失败' AFTER `gather_asset_id`
+
+            ]]>
+        </sql>
+    </changeSet>
+
+
+    <changeSet id="108" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+                delete from `sys_user` where id in(1,2,3);
+				INSERT INTO `sys_user` VALUES (1, 1, 'admin', '超级管理员', '男', NULL, NULL, NULL, NULL, '$2a$10$Egp1/gvFlt7zhlXVfEFw4OfWQCGPw0ClmMcc6FjTnvXNRVf9zdMRa', b'1', 1, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00', '2022-01-01 00:00:00', 2);
+				INSERT INTO `sys_user` VALUES (2, 1, 'zcmg', '资产管理员', '男', NULL, NULL, NULL, NULL, '$2a$10$Egp1/gvFlt7zhlXVfEFw4OfWQCGPw0ClmMcc6FjTnvXNRVf9zdMRa', b'0', 1, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00', '2022-01-01 00:00:00', 3);
+                INSERT INTO `sys_user` VALUES (3, 1, 'fxmg', '风险管理员', '男', NULL, NULL, NULL, NULL, '$2a$10$Egp1/gvFlt7zhlXVfEFw4OfWQCGPw0ClmMcc6FjTnvXNRVf9zdMRa', b'0', 1, 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00', '2022-01-01 00:00:00', 3);
+				delete from `sys_dept` where id in (1);
+                INSERT INTO `sys_dept` VALUES (1, NULL, 0, '系统初始部门', 1, b'1', 'admin', 'admin', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="109" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+				delete from `sys_dept` where id in (2,3,4,5);
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="110" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+                INSERT INTO `sys_users_roles` VALUES (2, 3);
+                INSERT INTO `sys_users_roles` VALUES (3, 2);
+                update `sys_user` set password = '$2a$10$jkQge/ARvlo7slSheQqYSO.PBbGBfGnTWhxRyRK8OzeTdt10.j6ma', username = 'system' where id = 1;
+                update `sys_user` set password = '$2a$10$jkQge/ARvlo7slSheQqYSO.PBbGBfGnTWhxRyRK8OzeTdt10.j6ma' where id = 2;
+                update `sys_user` set password = '$2a$10$jkQge/ARvlo7slSheQqYSO.PBbGBfGnTWhxRyRK8OzeTdt10.j6ma' where id = 3;
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="111" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`sys_user`
+            ADD COLUMN `first_login` int(2) DEFAULT 1 COMMENT '是否是第一次登录 1:是第一次登录 0:不是';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="205" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            INSERT INTO `know`.`tbl_asset_type`(`id`, `name`, `description`, `customize`, `parent_id`, `create_time`, `create_by`, `update_time`, `update_by`) VALUES (9, '其他', '', 1, NULL, NULL, NULL, NULL, NULL);
+
+            update `know`.`tbl_asset_type` set customize = 1 where id in (1,2,3,4,5,6,7,8);
+
+            INSERT INTO `know`.`tbl_asset_tag`(`id`, `name`, `enabled`, `customize`, `description`, `parent_id`, `create_time`, `create_by`, `update_time`, `update_by`) VALUES (1, '其他', 0, 1, NULL, NULL, NULL, NULL, NULL, NULL);
+
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="112" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            update `sys_user` set first_login = 0 where id in(1,2,3);
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="206" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset_confirm`
+            ADD COLUMN `asset_sys_type_id` bigint(20) NULL DEFAULT NULL COMMENT '资产类型 对应asset_sys_type表' AFTER `asset_type_id`;
+
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="207" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            update tbl_asset_sys_type set customize = true where id BETWEEN 1 and 26;
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="113" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_vulnerability_scan_plan`
+            ADD COLUMN `monitoring_type` int(2) NULL DEFAULT NULL COMMENT '定时类型 1、手动 2、每周 3、每月 4、自定义';
+            ALTER TABLE `know`.`tbl_vulnerability_scan_plan`
+            ADD COLUMN `monitoring_param` varchar(255) NULL DEFAULT NULL COMMENT '定时的具体数据 每周代表具体的周数 自定义则存一个 间隔时间 单位 天';
+            ALTER TABLE `know`.`tbl_vulnerability_scan_plan`
+            ADD COLUMN `running_or_last_resultId` bigint(20) NULL DEFAULT NULL COMMENT '运行中或上次运行的漏洞扫描计划结果';
+            ALTER TABLE `know`.`tbl_vulnerability_scan_plan`
+            ADD COLUMN `built_in` tinyint(1) DEFAULT NULL COMMENT '是否使用内置的 true：内置 false：第三方';
+            ALTER TABLE `know`.`tbl_vulnerability_scan_plan`
+            ADD COLUMN `start_time` datetime DEFAULT NULL COMMENT '开始时间';
+            ALTER TABLE `know`.`tbl_vulnerability_scan_plan`
+            ADD COLUMN `create_by` varchar(255) DEFAULT NULL COMMENT '创建人';
+            ALTER TABLE `know`.`tbl_vulnerability_scan_plan`
+            ADD COLUMN `update_time` datetime DEFAULT NULL COMMENT '修改时间';
+            ALTER TABLE `know`.`tbl_vulnerability_scan_plan`
+            ADD COLUMN `update_by` varchar(255) DEFAULT NULL COMMENT '修改人';
+
+            DROP TABLE `tbl_vulnerability_scan_result`;
+            CREATE TABLE `tbl_vulnerability_scan_result` (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+              `scanner_name` varchar(255) DEFAULT NULL COMMENT '扫描器名称',
+              `scanner_product` varchar(255) DEFAULT NULL COMMENT '扫描器产品',
+              `scanner_version` varchar(255) DEFAULT NULL COMMENT '扫描器版本',
+              `plan_name` varchar(255) DEFAULT NULL COMMENT '扫描任务名',
+              `policy_id` int(11) DEFAULT NULL COMMENT '扫描策略',
+              `result` int(2) DEFAULT NULL COMMENT '资产扫描结果，0：扫描中 1:成功，2:失败',
+              `scan_type` int(2) DEFAULT NULL COMMENT ' 扫描类型 0全部 1根据部门 2自定义',
+              `built_in` tinyint(1) DEFAULT NULL COMMENT '是否使用内置的 true：内置 false：第三方',
+              `scan_dept_name` text COMMENT '扫描的部门名列表',
+              `start_time` datetime DEFAULT NULL COMMENT '开始时间',
+              `end_time` datetime DEFAULT NULL COMMENT '结束时间',
+              `update_time` datetime DEFAULT NULL COMMENT '修改时间',
+              `update_by` varchar(255) DEFAULT NULL COMMENT '修改人',
+              `create_by` varchar(255) DEFAULT NULL COMMENT '创建人',
+              `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+              `extra` mediumtext COMMENT '额外信息',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='漏扫扫描结果表';
+
+            DROP TABLE `tbl_vulnerability_scan_result_asset`;
+            CREATE TABLE `tbl_vulnerability_scan_result_asset` (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+              `ip` varchar(255) DEFAULT NULL COMMENT '扫描的资产ip',
+              `status` int(11) DEFAULT NULL COMMENT '扫描状态，0:开始，1:结束，2:暂停',
+              `result` int(11) DEFAULT NULL COMMENT '资产扫描结果，0:成功，1:失败',
+              `task_id` varchar(255) DEFAULT NULL COMMENT '扫描器上的扫描结果ID 是第三方扫描器给的值需要根据这个值去找结果',
+              `scan_result_id` bigint(20) DEFAULT NULL COMMENT '扫描结果id',
+              `vulnerability_id_list` varchar(1024) DEFAULT NULL COMMENT '扫描出的漏洞列表',
+              `extra` mediumtext COMMENT '额外信息',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='漏扫单个扫描结果表';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="208" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset_confirm`
+            ADD COLUMN `extend_id` bigint(20) NULL DEFAULT NULL COMMENT '资产扩展属性表';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `type` varchar(20) NULL DEFAULT NULL COMMENT '类型TCP/UDP';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `state` varchar(20) NULL DEFAULT NULL COMMENT '状态：open/closed/filtered';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `reason` varchar(20) NULL DEFAULT NULL COMMENT '状态判断依据';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `conf` int(2) NULL DEFAULT NULL COMMENT '可信度';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `name` varchar(255) NULL DEFAULT NULL COMMENT '服务名称';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `product` varchar(255) NULL DEFAULT NULL COMMENT '服务产品名称';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `version` varchar(255) NULL DEFAULT NULL COMMENT '版本号';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `extrainfo` varchar(1000) NULL DEFAULT NULL COMMENT '额外信息';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `banner` varchar(1000) NULL DEFAULT NULL COMMENT '端口banner信息';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `cpe` varchar(255) NULL DEFAULT NULL COMMENT 'cpe';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `json` mediumtext NULL DEFAULT NULL COMMENT 'json';
+
+
+
+
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="209" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset_confirm`
+            ADD COLUMN `open_port` varchar(2000) NULL DEFAULT NULL COMMENT '开放端口';
+
+            ]]>
+        </sql>
+    </changeSet>
+
+
+    <changeSet id="114" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+
+            ALTER TABLE `tbl_vulnerability_scan_plan` CHANGE running_or_last_resultId running_or_last_result_id bigint(20) NULL DEFAULT NULL COMMENT '运行中或上次运行的漏洞扫描计划结果';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="115" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            DROP TABLE IF EXISTS `sys_detailed_file`;
+            CREATE TABLE `sys_detailed_file` (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+              `name` varchar(255) DEFAULT NULL COMMENT '名称',
+              `type` int(11) DEFAULT NULL COMMENT '类型',
+              `file_suffix` varchar(255) DEFAULT NULL COMMENT '文件后缀',
+              `status` int(2) DEFAULT NULL COMMENT '状态  0：生成中 1：生成成功',
+              `file_name` varchar(255) DEFAULT NULL COMMENT '实际文件名称',
+              `update_time` datetime DEFAULT NULL COMMENT '修改时间',
+              `update_by` varchar(255) DEFAULT NULL COMMENT '修改人',
+              `create_by` varchar(255) DEFAULT NULL COMMENT '创建人',
+              `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='明细清单表';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="116" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+                UPDATE sys_menu set hidden = 1 where id = 13 or pid = 13;
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="117" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_vulnerability_scan_result`
+            ADD COLUMN `file_name` varchar(255) NULL DEFAULT NULL COMMENT '存入的文件名';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="118" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_vulnerability_scan_result`
+            ADD COLUMN `plan_id` bigint(20) NULL DEFAULT NULL COMMENT '任务id';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="119" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `tbl_vulnerability_scan_result_asset` MODIFY `vulnerability_id_list` mediumtext DEFAULT NULL COMMENT '扫描出的漏洞列表';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="120" author="shijh" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_detect_task` ADD COLUMN `num` int(11) NULL DEFAULT NULL COMMENT '执行次数';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="210" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset`
+            ADD COLUMN `gather_type` int(1) NULL DEFAULT NULL COMMENT '采集方式 1-Agent 2-登录采集 3-无访问';
+
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="211" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_gather_plan`
+            ADD COLUMN `gather_num` int(11) NULL DEFAULT NULL COMMENT '采集对象数量';
+
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="212" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset_confirm`
+            ADD COLUMN `gather_type` int(1) NULL DEFAULT NULL COMMENT '采集方式 1-Agent 2-登录采集 3-无访问';
+
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="120" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+                INSERT INTO `quartz_job`
+                (job_name, job_type, bean_name, method_name, start_time, period, is_pause, description, create_by, update_by, create_time, update_time)
+                VALUES
+                ('vulScanRetest', 'vulScanRetest', 'vulnerabilityHistoryEsServiceImpl', 'scanRetestTask', '2000-01-01 00:00:00', 60, false, '扫描复测定时任务', 'system', 'system', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            ]]>
+        </sql>
+    </changeSet>
+    <changeSet id="127" author="shijh" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `tbl_detect_task` MODIFY `ip_list` text DEFAULT NULL COMMENT 'ip列表';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="121" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            INSERT INTO `quartz_job`
+            ( job_name, job_type, bean_name, method_name, start_time, period, is_pause, description, create_by, update_by, create_time, update_time )
+            VALUES
+            ( 'vulScanRetestClean', 'vulScanRetest', 'vulnerabilityHistoryEsServiceImpl', 'scanRetestMapClean', '2000-01-01 00:00:00', 3600, FALSE, '扫描复测定时任务', 'system', 'system', '2022-01-01 00:00:00', '2022-01-01 00:00:00' );
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="122" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            UPDATE sys_menu SET title='漏洞扫描', permission = 'vulScan' WHERE id=12;
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="123" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            UPDATE sys_menu SET title='资产稽核' WHERE id=19;
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="213" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+
+            DROP TABLE IF EXISTS `tbl_risk_report`;
+            CREATE TABLE `tbl_risk_report`  (
+              `id` bigint(20) NOT NULL COMMENT 'id',
+              `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '名称',
+              `type` int(1) NULL DEFAULT NULL COMMENT '1 主机 2 应用 3 全部',
+              `range` int(1) NULL DEFAULT NULL COMMENT '1-按单个资产，2-按部门，3-全部资产',
+              `range_list` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '范围列表 单个资产为资产id 按部门为 部门id',
+              `start_time` datetime(0) NULL DEFAULT NULL COMMENT '开始时间',
+              `end_time` datetime(0) NULL DEFAULT NULL COMMENT '结束时间',
+              `status` int(255) NULL DEFAULT NULL COMMENT '状态 0 正在生成 1 完成 2 失败',
+              `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '实际文件名称',
+              `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+              `create_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建人',
+              `update_time` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+              `update_by` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改人',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+            ]]>
+        </sql>
+    </changeSet>
+    <changeSet id="214" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `tbl_risk_report` MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="124" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`sys_message`
+            ADD COLUMN `jump_parameters` varchar(255) DEFAULT NULL COMMENT '跳转用参数 json格式';
+            ]]>
+        </sql>
+    </changeSet>
+
+
+    <changeSet id="128" author="shijh" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `tbl_detect_record` MODIFY `ip_list` text DEFAULT NULL COMMENT 'ip列表';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="215" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `lat` varchar(255) DEFAULT NULL COMMENT '纬度';
+
+            ALTER TABLE `know`.`tbl_asset_extend`
+            ADD COLUMN `lon` varchar(255) DEFAULT NULL COMMENT '经度';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="125" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            INSERT INTO `sys_roles_menus`
+                (menu_id, role_id)
+                VALUES
+                (8, 2),(9, 2),(10, 2),(11, 2),(22, 2),(23, 2),(24, 2),(12, 2),(13, 2),(14, 2),(15, 2),(16, 2),
+                (8, 3),(9, 3),(10, 3),(11, 3),(22, 3),(23, 3),(24, 3),(17, 3),(18, 3),(19, 3),(20, 3),(21, 3);
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="216" author="shijh" context="master">
+        <sql>
+            <![CDATA[
+            CREATE TABLE `count_vulnerability` (
+            `id` int(6) NOT NULL AUTO_INCREMENT COMMENT '主键id',
+            `data_time` varchar(32) DEFAULT NULL,
+            `high_num` int(11) DEFAULT '0' COMMENT '高危漏洞',
+            `in_danger_num` int(11) DEFAULT '0' COMMENT '中危漏洞',
+            `low_risk_num` int(11) DEFAULT '0' COMMENT '低危漏洞',
+            `create_time` datetime DEFAULT NULL,
+            `update_time` datetime DEFAULT NULL,
+            `host_vul` int(11) DEFAULT '0' COMMENT '主机漏洞数',
+            `app_vul` int(11) DEFAULT '0' COMMENT '应用漏洞数',
+            PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='漏洞统计表'
+        ]]>
+        </sql>
+    </changeSet>
+    <changeSet id="217" author="shijh" context="master">
+        <sql>
+            <![CDATA[
+                INSERT INTO `quartz_job`
+                (job_name, job_type, bean_name, method_name, start_time,cron_expression, is_pause, description, create_by, update_by, create_time, update_time)
+                VALUES
+                ('vulCount', 'countVulnerability', 'countVulnerabilityServiceImpl', 'findCountVul', '2000-01-01 00:00:00','0 59 23 * * ?', false, '统计风险数量', 'system', 'system', '2022-01-01 00:00:00', '2022-01-01 00:00:00');
+            ]]>
+        </sql>
+    </changeSet>
+    <changeSet id="218" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            DROP TABLE IF EXISTS `tbl_detect_record_detail`;
+            CREATE TABLE `tbl_detect_record_detail`  (
+              `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+              `ip` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'ip',
+              `online` tinyint(1) NULL DEFAULT NULL COMMENT '是否在线',
+              `record_id` bigint(20) NULL DEFAULT NULL COMMENT '记录id',
+              PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+            ALTER TABLE `know`.`tbl_detect_record`
+            ADD COLUMN `cancel` tinyint(1) NULL DEFAULT NULL COMMENT '是否手动取消';
+            ALTER TABLE `know`.`tbl_detect_record`
+            ADD COLUMN `online` bigint(20) NULL DEFAULT NULL COMMENT '在线数量';
+            ALTER TABLE `know`.`tbl_detect_record`
+            ADD COLUMN `offline` bigint(20) NULL DEFAULT NULL COMMENT '离线数量';
+
+            ALTER TABLE `know`.`tbl_detect_task`
+            ADD COLUMN `cancel` tinyint(1) NULL DEFAULT NULL COMMENT '是否手动取消';
+            ALTER TABLE `know`.`tbl_detect_task`
+            ADD COLUMN `online` bigint(20) NULL DEFAULT NULL COMMENT '在线数量';
+            ALTER TABLE `know`.`tbl_detect_task`
+            ADD COLUMN `offline` bigint(20) NULL DEFAULT NULL COMMENT '离线数量';
+
+            ALTER TABLE `know`.`tbl_asset_confirm`
+            ADD COLUMN `online` tinyint(1) NULL DEFAULT NULL COMMENT '是否在线';
+            ALTER TABLE `know`.`tbl_asset_confirm`
+            ADD COLUMN `dept_id` bigint(20) NULL DEFAULT NULL COMMENT '所属部门';
+
+            ALTER TABLE `know`.`tbl_asset`
+            ADD COLUMN `online` tinyint(1) NULL DEFAULT NULL COMMENT '是否在线';
+
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="219" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset`
+            ADD COLUMN `config` varchar(4000) DEFAULT NULL COMMENT '采集配置';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="126" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset_tag`
+            ADD COLUMN `number` varchar(255) DEFAULT NULL COMMENT '编号';
+            ]]>
+        </sql>
+    </changeSet>
+    <changeSet id="320" author="shijh" context="master">
+        <sql>
+            DROP TABLE IF EXISTS `tbl_gather_task_status`;
+            CREATE TABLE `tbl_gather_task_status`  (
+            `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '任务id',
+            `asset_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '资产id',
+            `task_status` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '状态',
+            `gather_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '类型    1-扫描  2-采集   3-agent    json',
+            `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+            `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+            PRIMARY KEY (`id`) USING BTREE
+            ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+        </sql>
+    </changeSet>
+
+    <changeSet id="220" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset_sys_type`
+            ADD COLUMN `number` varchar(255) DEFAULT NULL COMMENT '编号';
+
+            ALTER TABLE `know`.`tbl_asset_type`
+            ADD COLUMN `number` varchar(255) DEFAULT NULL COMMENT '编号';
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="127" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+                DELETE FROM `tbl_asset_tag`;
+                DELETE FROM `tbl_asset_tag_mapping`;
+                INSERT INTO `tbl_asset_tag`
+                ( id, NAME, enabled, customize, description, parent_id, create_time, create_by, update_time, update_by, number )
+                VALUES
+                ( 1, '操作系统', 1, 0, NULL, NULL, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 2, '中间件', 1, 0, NULL, NULL, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 3, '数据库', 1, 0, NULL, NULL, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 4, 'Windows', 1, 0, NULL, 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 5, 'Linux', 1, 0, NULL, 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 6, 'Mac', 1, 0, NULL, 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 7, 'Unix', 1, 0, NULL, 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 8, 'IOS', 1, 0, NULL, 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 9, 'WindowsPhone', 1, 0, '手机操作系统', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 10, 'Symbian', 1, 0, '塞班操作系统，前身是Psion的EPOC', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 11, 'Android', 1, 0, '（嵌入式）实时操作系统', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 12, 'Vxworks', 1, 0, NULL, 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 13, 'QNX', 1, 0, '分布式实时操作系统，多任务、多用户', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 14, 'PalmOS', 1, 0, '嵌入式操作系统，多用于PDA', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 15, 'ARM mbed OS', 1, 0, '物联网操作系统，mbed OS是一种运行在物联网设备（基于Cortex-M微控制器）上的小型内核操作系统，它使用基于事件的单线程架构，包括一个为系统和用户事件作调度的调度 程序', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 16, 'FreeRTOS', 1, 0, '轻量级的实时操作系统内核', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 17, 'LiteOS', 1, 0, '华为发布（敏捷网络3.0）的轻量级物联网操作系统', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 18, 'AliOS Things', 1, 0, '阿里物联网操作系统', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 19, 'MICO', 1, 0, '是一个面向智能硬件优化设计的、运行在微控制器上的、高度可移植的操作系统和中间件开发平台', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 20, 'H3C Comware', 1, 0, 'Comware采用了Linux的内核，Comware是H3C公司的软件平台，操作系统', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 21, 'Huawei VRP', 1, 0, '华为网络操作系统，VRP (Versatile Routing Platform)即通用路由平台，所有基于IP/ATM构架的数据通信产品操作系统平台。', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 22, 'cisco ios', 1, 0, '互联网操作系统（简称IOS）是思科公司为其网络设备开发的操作维护系统。', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 23, 'Junos', 1, 0, 'Junos 是一款可靠的高性能网络操作系统', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 24, 'vmware esxi', 1, 0, 'VMware vSphere的核心组件，VMware vSphere是虚拟化平台', 1, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 25, 'Tomcat', 1, 0, 'Tomcat 服务器是一个免费的开放源代码的Web 应用服务器，属于轻量级应用服务器', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 26, 'IIS', 1, 0, '互联网信息服务，微软提供的运行在Windows系统下的中间件，主要用来解析.ASP，.ASA，.CER三种文件格式的文件', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 27, 'Apache', 1, 0, 'Web服务器端软件', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 28, 'WebSphere', 1, 0, '随需应变 Web 应用程序和跨平台、跨产品解决方案所需要的整个中间件基础设施，如服务器、服务和工具', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 29, 'WebLogic', 1, 0, 'WebLogic是用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 30, 'Jetty', 1, 0, 'Jetty 是一个开源的servlet容器，它为基于Java的web容器，例如JSP和servlet提供运行环境', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 31, 'TongWeb', 1, 0, '符合J2EE规范的企业应用支撑平台，J2EE应用服务器', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 32, 'Nginx', 1, 0, 'Nginx(engine x) 是一个高性能的HTTP和反向代理web服务器，同时也提供了IMAP/POP3/SMTP服务', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 33, 'Jboss', 1, 0, '基于J2EE的开放源代码的应用服务器', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 34, 'httpd', 1, 0, 'httpd是Apache超文本传输协议(HTTP)服务器的主程序。被设计为一个独立运行的后台进程，它会建立一个处理请求的子进程或线程的池', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 35, 'node.js', 1, 0, '一个基于ChromeV8引擎的JavaScript运行环境，使用了一个事件驱动、非阻塞式I/O模型,让JavaScript 运行在服务端的开发平台', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 36, 'GlassFish', 1, 0, 'Glassfish是一款强健的商业兼容应用型服务器，glassfish是一款web应用服务器，和tomcat一样，也是一款优秀的Servlet容器。', 2, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 37, 'Oracle', 1, 0, '关系型数据库', 3, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 38, 'DB2', 1, 0, '关系型数据库管理系统，它主要的运行环境为UNIX（包括IBM自家的AIX）、Linux、IBM i（旧称OS/400）、z/OS，以及Windows服务器版本', 3, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 39, 'Informix', 1, 0, '关系数据库管理系统', 3, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 40, 'Sybase', 1, 0, '一种关系型数据库系统，是一种典型的UNIX或WindowsNT平台上客户机/服务器环境下的大型数据库系统。', 3, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 41, 'MySQL', 1, 0, '关系型数据库管理系统', 3, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 42, 'MSSQL', 1, 0, 'ms SQL是指微软的SQLServer数据库服务器', 3, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 43, 'PostgreSQL', 1, 0, 'PostgreSQL是一种特性非常齐全的自由软件的对象-关系型数据库管理系统（ORDBMS），操作系统支持WINDOWS、Linux、UNIX、MAC OS X、BSD', 3, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 44, 'EDB', 1, 0, '易语言的数据库功能大部分基于XBASE 方式，基于游戏账号信息管理数据库管理模板', 3, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 45, 'ACCESS', 1, 0, '关系数据库管理系统，数据库引擎的图形用户界面和软件开发工具结合', 3, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 46, 'Redis', 1, 0, '远程字典服务，是一个开源的使用ANSI C语言编写、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API', 3, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL ),
+                ( 47, 'MongoDB', 1, 0, '基于分布式文件存储的数据库', 3, '2022-01-01 00:00:00', 'system', '2022-01-01 00:00:00', 'system', NULL );
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="128" author="shenjc" context="master">
+        <sql>
+            <![CDATA[
+            UPDATE `tbl_asset_tag` SET
+            customize = true
+            WHERE id <= 47
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="221" author="zhangxq" context="master">
+        <sql>
+            <![CDATA[
+
+            DELETE FROM `tbl_asset_type`;
+            DELETE FROM `tbl_asset_sys_type`;
+
+            INSERT INTO `tbl_asset_type` VALUES (1, '主机资产', '', 1, NULL, NULL, NULL, NULL, NULL, '00');
+            INSERT INTO `tbl_asset_type` VALUES (2, '网络产品', '', 1, NULL, NULL, NULL, NULL, NULL, '01');
+
+            INSERT INTO `tbl_asset_sys_type` VALUES (1, '主机（其他）', 1, '', 1, NULL, NULL, NULL, NULL, '0000');
+            INSERT INTO `tbl_asset_sys_type` VALUES (2, '服务器', 2, '', 1, NULL, NULL, NULL, NULL, '0101');
+            INSERT INTO `tbl_asset_sys_type` VALUES (3, '路由器', 2, '', 1, NULL, NULL, NULL, NULL, '0102');
+            INSERT INTO `tbl_asset_sys_type` VALUES (4, '交换机', 2, '', 1, NULL, NULL, NULL, NULL, '0103');
+            INSERT INTO `tbl_asset_sys_type` VALUES (5, 'PLC设备', 2, '', 1, NULL, NULL, NULL, NULL, '0104');
+            INSERT INTO `tbl_asset_sys_type` VALUES (6, '存储设备', 2, '', 1, NULL, NULL, NULL, NULL, '0105');
+            INSERT INTO `tbl_asset_sys_type` VALUES (7, '负载均衡设备', 2, '', 1, NULL, NULL, NULL, NULL, '0106');
+            INSERT INTO `tbl_asset_sys_type` VALUES (8, '汇聚分流设备', 2, '', 1, NULL, NULL, NULL, NULL, '0107');
+            INSERT INTO `tbl_asset_sys_type` VALUES (9, '其他网络设备', 2, '', 1, NULL, NULL, NULL, NULL, '0199');
+            ]]>
+        </sql>
+    </changeSet>
+
+    <changeSet id="312" author="shijh" context="master">
+        <sql>
+            <![CDATA[
+            ALTER TABLE `know`.`tbl_asset`
+            ADD COLUMN `scan_asset_id` varchar(255) NULL COMMENT 'ES的远程扫描资产id';
+            ]]>
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
